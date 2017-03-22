@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="chatMessageList">
+        <attr name="myBubbleBackground" format="reference"/>
+        <attr name="otherBubbleBackground" format="reference"/>
+        <attr name="isShowUserAvatar" format="boolean"/>
+        <attr name="isShowUserNick" format="boolean"/>
+    </declare-styleable>
+
+</resources>

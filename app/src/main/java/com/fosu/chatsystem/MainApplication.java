@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.FileReader;
 
 import cn.bmob.newim.BmobIM;
+import me.shaohui.shareutil.ShareConfig;
+import me.shaohui.shareutil.ShareManager;
 
 /**
  * Created by Administrator on 2017/3/9.
@@ -26,6 +28,11 @@ public class MainApplication extends Application {
             //注册消息接收器
             BmobIM.registerDefaultMessageHandler(new MessageHandler(this));
         }
+
+        ShareConfig config = ShareConfig.instance()
+                .qqId("1106058290");
+                // 下面两个，如果不需要登录功能，可不填写
+        ShareManager.init(config);
     }
 
     /**

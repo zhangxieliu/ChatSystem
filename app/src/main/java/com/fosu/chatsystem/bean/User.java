@@ -8,13 +8,13 @@ import cn.bmob.v3.datatype.BmobFile;
  */
 
 public class User extends BmobUser {
-    private BmobFile HeadPortrait;
+    private BmobFile avatar;    // 用户头像信息
 
-    public BmobFile getHeadPortrait() {
-        return HeadPortrait;
+    public BmobFile getAvatar() {
+        return avatar;
     }
 
-    public void setHeadPortrait(BmobFile headPortrait) {
-        HeadPortrait = headPortrait;
+    public void setAvatar(BmobFile avatar) {
+        this.avatar = avatar;
     }
 }

@@ -20,7 +20,6 @@ import cn.bmob.v3.exception.BmobException;
 import cn.bmob.v3.listener.DeleteListener;
 import cn.bmob.v3.listener.FindListener;
 import cn.bmob.v3.listener.GetListener;
-import cn.bmob.v3.listener.LogInListener;
 import cn.bmob.v3.listener.SaveListener;
 
 import static cn.bmob.newim.core.BmobIMClient.getContext;
@@ -30,6 +29,16 @@ import static cn.bmob.newim.core.BmobIMClient.getContext;
  */
 
 public class UserModel extends BaseModel {
+    private static UserModel userModel = null;
+
+    private UserModel() {}
+
+    public static UserModel getSingleInstance() {
+        if (userModel == null) {
+            userModel = new UserModel();
+        }
+        return userModel;
+    }
 
     /**
      * 登录
@@ -38,29 +47,19 @@ public class UserModel extends BaseModel {
      * @param password
      * @param listener
      */
-    public void login(String username, String password, final LogInListener listener) {
+    public void login(String username, String password, SaveListener listener) {
         if (TextUtils.isEmpty(username)) {
-            listener.internalDone(new BmobException(CODE_NULL, "请填写用户名"));
+            listener.postOnFailure(CODE_NULL, "请填写用户名");
             return;
         }
         if (TextUtils.isEmpty(password)) {
-            listener.internalDone(new BmobException(CODE_NULL, "请填写密码"));
+            listener.postOnFailure(CODE_NULL, "请填写密码");
             return;
         }
         final User user = new User();
         user.setUsername(username);
         user.setPassword(password);
-        user.login(getContext(), new SaveListener() {
-            @Override
-            public void onSuccess() {
-                listener.done(getCurrentUser(), null);
-            }
-
-            @Override
-            public void onFailure(int i, String s) {
-                listener.done(user, new BmobException(i, s));
-            }
-        });
+        user.login(getContext(), listener);
     }
 
     public User getCurrentUser() {
@@ -70,7 +69,7 @@ public class UserModel extends BaseModel {
     /**
      * 退出登录
      */
-    public void logout() {
+    public void logOut() {
         BmobUser.logOut(getContext());
     }
 
@@ -82,37 +81,28 @@ public class UserModel extends BaseModel {
      * @param pwdagain
      * @param listener
      */
-    public void register(String username, String password, String pwdagain, final LogInListener listener) {
+    public void register(String username, String password, String pwdagain, SaveListener listener) {
         if (TextUtils.isEmpty(username)) {
-            listener.internalDone(new BmobException(CODE_NULL, "请填写用户名"));
+            listener.postOnFailure(CODE_NULL, "请填写用户名");
             return;
         }
         if (TextUtils.isEmpty(password)) {
-            listener.internalDone(new BmobException(CODE_NULL, "请填写密码"));
+            listener.postOnFailure(CODE_NULL, "请填写密码");
             return;
         }
         if (TextUtils.isEmpty(pwdagain)) {
-            listener.internalDone(new BmobException(CODE_NULL, "请填写确认密码"));
+            listener.postOnFailure(CODE_NULL, "请填写确认密码");
             return;
         }
         if (!password.equals(pwdagain)) {
-            listener.internalDone(new BmobException(CODE_NOT_EQUAL, "两次输入的密码不一致，请重新输入"));
+            listener.postOnFailure(CODE_NOT_EQUAL, "两次输入的密码不一致，请重新输入");
             return;
         }
-        final User user = new User();
+        User user = new User();
         user.setUsername(username);
         user.setPassword(password);
-        user.signUp(getContext(), new SaveListener() {
-            @Override
-            public void onSuccess() {
-                listener.done(null, null);
-            }
 
-            @Override
-            public void onFailure(int i, String s) {
-                listener.done(null, new BmobException(i, s));
-            }
-        });
+        user.signUp(getContext(), listener);
     }
 
     /**
@@ -175,14 +165,14 @@ public class UserModel extends BaseModel {
         final BmobIMMessage msg = event.getMessage();
         String username = info.getName();
         String title = conversation.getConversationTitle();
-        Logger.i("" + username + "," + title);
+        Logger.i("username:" + username + ", title:" + title);
         //sdk内部，将新会话的会话标题用objectId表示，因此需要比对用户名和会话标题--单聊，后续会根据会话类型进行判断
         if (!username.equals(title)) {
             this.queryUserInfo(info.getUserId(), new GetListener<User>() {
                 @Override
                 public void onSuccess(User user) {
                     String name =user.getUsername();
-                    String avatar = user.getHeadPortrait().getUrl();
+                    String avatar = user.getAvatar().getUrl();
                     Logger.i("query success："+name+","+avatar);
                     conversation.setConversationIcon(avatar);
                     conversation.setConversationTitle(name);
